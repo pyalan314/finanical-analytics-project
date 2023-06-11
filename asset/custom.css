@@ -1,0 +1,14 @@
+.table{
+  width:auto;
+  font-size: 12px;
+}
+
+.verysmall .table{
+  font-size: 8px;
+}
+
+.main-container {max-width: 100%;}
+.row {display: flex;}
+.column {flex: 50%;}
+
+.TODO {color: red; background: yellow}

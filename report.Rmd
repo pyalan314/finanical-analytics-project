@@ -1,0 +1,830 @@
+---
+title: 'Performance Evaluation By Simulation'
+description: "MMAT 5310 Project B Final Report (Group 8)"
+date: 2023-05-07
+author:
+- name: Ery Cao
+- name: Rachel Gong
+- name: Alan Wong
+- name: Yuhua Zhong
+tags: [Random Portfolio, Performance Evaluation]
+output: 
+  distill::distill_article:
+    css: asset/custom.css
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, message=FALSE, warning=FALSE, echo=FALSE}
+library(reshape2)
+library(tidyverse)
+library(knitr)
+
+source('R/plot.r')
+source('R/stock.r')
+source('R/share.r')
+
+# Options
+ALLOW.CASH <- FALSE
+SAMPLE.COUNT <- 100
+PATH.COUNT <- 10000
+
+set_default_theme()
+```
+
+## 1. Problem Description
+
+As for portfolio managers, when a portfolio outperforms a benchmark, they always wonder how significant the outperformance is, and how to judge whether the success is based on luck or skill. In this study, we approach to evaluate the performance of different strategies by method of simulation.
+
+Basically, we transform it into two problems:
+
+-   When the candidate return is higher than benchmark return, whether it is significant or not.
+
+-   When candidate 1 and candidate 2 get higher returns than benchmark 1 and benchmark 2 respectively, which one is more significant? Candidate 1 or candidate 2?
+
+To illustrate these problems, we developed two hypothetical examples.
+
+-   The first example is set in an emerging market (eg. Vietnam), where the range of returns of different stocks can be quite large. In this example, a hypothetical fund, Fund 1, has generated approximately 5% in excess returns compared to Benchmark 1. We want to determine whether this difference is significant.
+
+-   The second example is set in a developed market (eg. Japan), where the range of returns of different stocks is relatively small. In this example, a hypothetical fund, Fund 2, has generated approximately 2% in excess returns compared to Benchmark 2. We want to determine whether the difference is significant and also compare the significance of the two funds when they are both significant.
+
+The following is the distribution of the stock returns in the two markets.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, out.width="50%"}
+# Produce two markets for illustration
+
+set.seed(5310)
+
+# stock_index <- read_csv('data/hstech.tidy.csv')
+# us_index <- read_csv('data/sp500.tidy.csv')
+# us_data <- get_stock_data_cached(us_index$symbol, '2023-01-03', '2023-04-03')
+# us_data <- us_data %>% 
+#   mutate(ret=end.price/start.price - 1)
+
+hk.index <- read_csv('data/hsi.tidy.csv')
+hk.data <- get_stock_data_cached(hk.index$symbol, '2023-01-03', '2023-04-03')
+hk.data <- hk.data %>% 
+  mutate(ret=end.price/start.price - 1)
+
+random.data <- hk.data
+random.ret <- (random.data$ret)  * 5
+random.benchmark.ret <- mean(random.ret) * 0.95
+random.outperform <- runif(1, 0.048, 0.052)
+random.candidate.ret <- random.benchmark.ret + random.outperform
+
+# stable.ret <- mean(random.ret) + runif(length(random.ret)) * 0.1 - 0.05
+stable.ret <- mean(random.ret) + rnorm(length(random.ret), sd=0.5) * 0.5 + 0.04
+
+stable.benchmark.ret <- mean(stable.ret) * 0.99
+stable.outperform <- runif(1, 0.018, 0.022)
+stable.candidate.ret <- stable.benchmark.ret + stable.outperform
+
+merged <- melt(list(stable=stable.ret, random=random.ret))
+
+n <- length(random.ret)
+
+two.market.dist <- merged %>% ggplot(aes(x=value, fill=L1)) + 
+  ggtitle('Two Markets Stock Return Distribution', glue('Cross-sectional, {n} stocks in one period')) +
+  geom_density(alpha=0.25) 
+
+two.market.dist %>% print()
+two.market.dist %>% save_plot('two.market.dist')
+
+two.market.box <- merged %>% ggplot(aes(x=L1, y=value, fill=L1)) + 
+  ggtitle('Two Markets Stock Return Boxplot', glue('Cross-sectional, {n} stocks in one period')) +
+  geom_boxplot()
+
+two.market.box %>% print()
+two.market.box %>% save_plot('two.market.box')
+```
+
+To summarize:
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, out.width="50%"}
+two.market.result <- bind_rows(
+  tibble(
+    Manager = 'Manager A',
+    Market='Random', 
+    `Candidate Return`=percent2(random.candidate.ret), 
+    `Benchmark Return`=percent2(random.benchmark.ret),
+    Outperformance=percent2(random.outperform),
+  ),
+  tibble(
+    Manager = 'Manager B',
+    Market='Stable', 
+    `Candidate Return`=percent2(stable.candidate.ret), 
+    `Benchmark Return`=percent2(stable.benchmark.ret),
+    Outperformance=percent2(stable.outperform),
+  ),
+)
+t(two.market.result) %>% kable()
+```
+
+We expect that when excess returns occur in a market with more randomness, it is more likely due to chance. But when excess returns occur in a market with less randomness, even though it's not a big excess, it may need a great portfolio. And we hope to get a solution that can distinguish these two situations.
+
+## 2. Literature Review
+
+### 2.1 《Random Portfolios for Performance Measurement》^[1]^
+
+Firstly, Burns defines the tool used and its measurement, which is the information ratio. The information ratio is the annualized return in excess of the benchmark divided by the annualized standard deviation of the differences in returns. In the random portfolio, the information ratios are calculated relative to the benchmark that has equal weight in each stock.
+
+Next, Burns discusses how to distinguish between chance and skill. For a single fund, it assumes that some managers do a portfolio simulation with the same weight as the benchmark (zero skills), and the p-value equals the probability of the positive information ratio. The skill of the manager increases as the p-value approaches zero. The article then plots the p-value with the frequency. When comparing different funds, it uses Stouffer's method to combine p-values into a single value, and the skill increases as the single value becomes higher. In R, the method is implemented as : 
+
+```{r eval=FALSE}
+pnorm( sum( qnorm(x) ) / sqrt(length(x) ))
+```
+
+### 2.2 《A uniformly distributed random portfolio》^[2]^
+
+Moving on to the second citation, Yongjae employs several tools: u represents the expected value of the random return vector, w=(w1,w2,\...) represents the portfolio weight vector, and the sum of weights equals 1. The Sharpe ratio function of w is given by the following formulation.
+
+The article then simulates uniformly distributed portfolios with weight Wunif and ranks them according to Sharpe Ratio:
+
+$$100 * P(SR(W<sub>unif</sub> \|u,∑) ≥ s)$$
+
+Here, s represents the Sharpe ratio calculated by the optimal tangent portfolio. Conventional approach allows only binary evaluation---better or worse than the benchmark portfolio. However, by employing the uniformly distributed random portfolio, we can obtain a ranking of a portfolio without peer group information.
+
+### 2.3《Not fooled by randomness: Using random portfolios to analyze investment funds》^[3]^
+
+Stein uses factor model alphas to identify skill, when  positive and significant, are considered signs of fund manager skill. It uses three alphas: Jensen's alpha, Fama and French 3 factor model and Carhart's 4 factor model. If 1,000 portfolios are generated then the return of each portfolio is calculated, then the distribution is based on the cross-section of the 1 ,000 holding period returns thus obtained. The skill test then consists of comparing the real fund's return with the ranked random portfolio returns. If the real return attains a certain percentile, for example it's better than 95% of the random returns, then we reject the null of no skill. 
+
+### 2.4《UK mutual fund performance: Skill or luck?》^[4]^
+
+Keith uses a cross-section bootstrap methodology to distinguish between 'skill' and 'luck' for individual funds.
+
+$$r_{i,j} = ɑ_i + β_i * X_t + e_{i,t}$$
+
+Where r means the equilibrium returns, $T_i$ = number of observations on fund i, $r_{i,j}$ = excess return on fund i, $X_t$ = matrix of risk factors and $e_{i,t}$ are the residuals.The random portfolio process is repeated B = 1000 times for each of the n-funds which gives a separate 'luck distribution' for each of the ordered funds $f(a_i)$ in the performance distribution, from the extreme best performer to the extreme worst performer, all of which are solely due to luck.Then can now compare any ex-post ɑi with its appropriate 'luck distribution'. If $ɑ^{max}$ is greater than the 5% upper tail cut off point from $f(ɑ^{max})$, we reject the null that its performance is due to luck (at 95% confidence) and infer that the fund has skill.
+
+### 2.5 Other citations
+
+Besides the articles, we also find some other relevant citations. In *《An alternative approach for portfolio performance evaluation: enabling fund evaluation relative to peer group via Malkiel's monkey》*^[5]^，Do-Gyun Kwon still compares a portfolio with respect to the portfolios constructed by an infinite number of Malkiel's blindfolded monkeys, or equivalently the whole enumeration of all possible portfolios, and use probability of Sharpe ratio of portfolio to outperform the UDRP to range the performance. In *《The Surprising Alpha From Malkiel's Monkey and Upside-Down Strategies》*^[6]^，Robert also points out that: unless an investor constructs a portfolio to have a positive relationship between price and portfolio weights, then the outperformance strategy is unsuspectable.
+
+## 3. Methodology
+
+There are five steps in computing the solution.
+
+1.  Generate a batch of "Monkey Portfolio"
+
+2.  Get an empirical distribution of the return
+
+3.  Compute P(X \> Candidate Return) and P(X \> Benchmark Return)
+
+4.  Compute a "Q" measure using the two probabilities
+
+5.  Repeat the simulation to get the distribution of "Q"
+
+This single market example will be used for illustration.
+
+```{r message=FALSE, warning=FALSE, echo=FALSE}
+start.date <- '2023-01-03'
+end.date <- '2023-04-03'
+
+example.space <- read_csv('data/hsi.tidy.csv')$symbol
+benchmark.ret <- get_single_stock_ret('^HSI', start.date, end.date)
+candidate.ret <- 0.01568
+
+feeds <- get_stock_data_cached(example.space, start.date, end.date) %>% 
+  mutate(ret=1- end.price/start.price) %>% 
+  select(symbol, ret)
+
+stopifnot(feeds$ret > -1)
+example.ret.space <- feeds$ret
+
+example.result <- tibble(
+  Portfolio = c('Fund ABC', 'HSI'),
+  Return = c(candidate.ret, benchmark.ret)
+)
+
+tibble(
+  Benchmark = 'Hang Seng Index (HSI)',
+  `# of Stock` = length(example.space),
+  Period = glue('{start.date} to {end.date}'),
+  `Benchmark Return` = percent2(benchmark.ret),
+  `ABC Fund Return` = percent2(candidate.ret),
+  Outperformance = percent2(candidate.ret - benchmark.ret)
+) %>%
+  t() %>% 
+  kable()
+```
+
+Using Hang Seng Index as the benchmark and suppose a Fund ABC which outperforms the HSI is observed. We want to evaluate how significant is this outperformance.
+
+### 3.1 Generate a batch of "Monkey Portfolio"
+
+-   Generate random weights $w_i$ for each of stock in the benchmark portfolio
+
+    -   Each of $w_i$ is uniform $[0,1]$. This can be generated by the n-dimensional simplex algorithm.
+
+    -   $∑w_i=1$. This requirement is equivalent to not allowing holding cash in the portfolio.
+
+-   Compute return $R_j = ∑w_i ∗ r_i$. $r_i$ is calculated from data feed.
+
+-   Repeat the process to get 10,000 $R_j$
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, out.width="50%"}
+set.seed(5310)
+
+monkey <- replicate(
+  PATH.COUNT, 
+  gen_monkey_return(example.ret.space, rescale = !ALLOW.CASH)
+)
+tibble(ret=monkey) %>% mutate(id=row_number()) %>% 
+  ggplot(aes(x=id, y=ret)) + 
+  ggtitle("Scatter plot of Monket Return") +
+  geom_point()
+```
+
+### 3.2 Get an empirical distribution of the return
+
+This empirical distribution is used as an approximation to the distribution of all feasible portfolio in the market.
+
+```{r message=FALSE,echo=FALSE, out.width="50%"}
+monkey_df <- tibble(Return=monkey)
+
+monkey.pdf <- density(monkey)
+monkey.cdf <- ecdf(monkey)
+monkey.ret <- summary(monkey.cdf)['Median']
+
+pdf_segments <- gen_pdf_segments(monkey.pdf, table=bind_rows(
+  list(value=candidate.ret, col=paste('ABC Fund', percent2(candidate.ret))),
+  list(value=benchmark.ret, col=paste('HSI', percent2(benchmark.ret))),
+  list(value=monkey.ret, col=paste('Monkey', percent2(monkey.ret))),
+))
+
+plot.pdf <- monkey_df %>% ggplot(aes(x=Return)) + 
+  ggtitle('PDF of Monkey Portfolio Return') + 
+  geom_density()+ 
+  pdf_segments
+
+plot.pdf %>% print()
+plot.pdf %>% save_plot('pdf')
+
+cdf.segments <- gen_cdf_segments(monkey.cdf, bind_rows(
+  list(value=candidate.ret, col=paste('ABC Fund', percent2(candidate.ret))),
+  list(value=benchmark.ret, col=paste('HSI', percent2(benchmark.ret))),
+  list(value=monkey.ret, col=paste('Monkey', percent2(monkey.ret))),
+))
+
+plot.cdf <- monkey_df %>% 
+  ggplot(aes(Return)) + 
+  ggtitle('CDF of Monkey Portfolio Return') + 
+  stat_ecdf(geom = "step") + 
+  cdf.segments
+
+plot.cdf %>% print()
+plot.cdf %>% save_plot('cdf')
+```
+
+Using the PDF, observe that both HSI and ABC are on the right hand side, meaning that both of them performs better than most of the monkeys. We want to evaluate how good they are using the CDF.
+
+### 3.3 Compute P(X \> Candidate Return) and P(X \> Benchmark Return)
+
+```{r message=FALSE, echo=FALSE, out.width="50%"}
+example.result2 <- example.result %>% 
+  add_row(Portfolio='Monkey Median', Return=monkey.ret) %>% 
+  mutate(`Prob < X` = monkey.cdf(Return)) %>% 
+  mutate(`Prob > X` = 1-monkey.cdf(Return)) %>% 
+  mutate(Return = percent2(Return))
+
+example.result2 %>% kable()
+```
+
+### 3.4 Compute a "Q" measure using the two probabilities
+
+Definition:
+
+$$
+Q = \frac{P(X > Benchmark Ret) - P(X > Candidate Ret)}{P(X > Benchmark Ret)}
+$$
+
+Graphically, it is the blue area divided by the red area:
+
+```{r message=FALSE, echo=FALSE, out.width="50%"}
+# Highlight the area for calculation
+plot.blue <- plot.pdf + fill_density_curve(monkey.pdf, from=benchmark.ret, to=candidate.ret, 'blue')
+plot.blue %>% print()
+plot.blue %>% save_plot('plot.blue')
+
+plot.red <- plot.pdf + fill_density_curve(monkey.pdf, from=benchmark.ret, to=Inf, 'red')
+plot.red %>% print()
+plot.red %>% save_plot('plot.red')
+
+```
+
+-   For outperformance, $Q ∈ [0, 1]$
+
+-   For underperformance, $Q ∈ [-1, 0]$
+
+-   For significant outperformance, $Q ≈ 1$
+
+Plug in the two probabilities in the example :
+
+```{r echo=FALSE}
+single.q <- compute_q_value(monkey, candidate.ret, benchmark.ret)
+
+print(glue('Q = {single.q %>% round(4)}'))
+print(glue('It means that ABC fund is better than {percent2(single.q)} of those monkeys that beat the HSI. '))
+```
+
+This number gives the significance of the outperformance.
+
+### 3.5 Repeat the simulation to get the distribution of Q
+
+In order to have statistical inference, confidence interval is needed instead of a single point estimation. Repeat the process to get the distribution of Q.
+
+```{r message=FALSE, echo=FALSE, out.width="50%"}
+set.seed(5310)
+
+monkey.many <- simulate_monkey_many(example.ret.space, SAMPLE.COUNT, PATH.COUNT)
+q.many <- compute_q_many(monkey.many, candidate.ret, benchmark.ret)
+plot.q <- generate_q_plot(q.many)
+plot.q %>% print()
+plot.q %>% save_plot('q')
+
+print(glue('Mean of Q = {mean(q.many) %>% round(4)}'))
+```
+
+The deviation is very small so the confidence interval is very narrow.
+
+Next this solution will be applied to the previous two-market example.
+
+### 3.6 Answer to the Two Markets Example
+
+Generate monkey portfolio for both markets:
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, out.width="50%"}
+set.seed(5310)
+
+# One simulation sample for illustration
+
+random.monkey <- replicate(PATH.COUNT, gen_monkey_return(random.ret))
+stable.monkey <- replicate(PATH.COUNT, gen_monkey_return(stable.ret))
+
+merged <- melt(list(random=random.monkey, stable=stable.monkey))
+
+two.monkey.dist <- merged %>% ggplot(aes(x=value, fill=L1)) + 
+  ggtitle('Two Markets Monkey Portfolio Return Distribution') +
+  geom_density(alpha=0.25)
+
+two.monkey.dist %>% print()
+two.monkey.dist %>% save_plot('two.monkey.dist')
+
+two.monkey.box <- merged %>% ggplot(aes(x=L1, y=value, fill=L1)) + 
+  ggtitle('Two Markets Monkey Portfolio Return Boxplot') +
+  geom_boxplot()
+
+two.monkey.box %>% print()
+two.monkey.box %>% save_plot('two.monkey.box')
+```
+
+Check the distribution:
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, out.width="50%"}
+
+random.monkey_df <- tibble(ret=random.monkey)
+random.pdf <- density(random.monkey)
+
+random.pdf.segments <- gen_pdf_segments(random.pdf, table=bind_rows(
+  list(value=random.benchmark.ret, col='Random Benchmark'),
+  list(value=random.candidate.ret, col='Random Candidate'),
+))
+
+plot.random.pdf <- random.monkey_df %>% ggplot(aes(x=ret)) + 
+  ggtitle('Random Market Monkey Portfolio', paste('Outperformance', percent2(random.outperform))) + 
+  geom_density() + 
+  random.pdf.segments
+
+plot.random.pdf %>% print()
+plot.random.pdf %>% save_plot('random.pdf')
+
+stable.monkey_df <- tibble(ret=stable.monkey)
+stable.pdf <- density(stable.monkey)
+
+stable.pdf.segments <- gen_pdf_segments(stable.pdf, table=bind_rows(
+  list(value=stable.benchmark.ret, col='Stable Benchmark'),
+  list(value=stable.candidate.ret, col='Stable Candidate'),
+))
+
+plot.stable.pdf <- stable.monkey_df %>% ggplot(aes(x=ret)) + 
+  ggtitle('Stable Market Monkey Portfolio', paste('Outperformance', percent2(stable.outperform))) + 
+  geom_density() + 
+  stable.pdf.segments
+
+plot.stable.pdf %>% print()
+plot.stable.pdf %>% save_plot('stable.pdf')
+```
+
+Repeat the process to get multiple samples and check the Q distribution:
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, out.width="50%"}
+
+random.monkey.many <- simulate_monkey_many(random.ret, SAMPLE.COUNT, PATH.COUNT)
+stable.monkey.many <- simulate_monkey_many(stable.ret, SAMPLE.COUNT, PATH.COUNT)
+
+random.q.many <- compute_q_many(random.monkey.many, random.candidate.ret, random.benchmark.ret)
+stable.q.many <- compute_q_many(stable.monkey.many, stable.candidate.ret, stable.benchmark.ret)
+
+(plot.random.q <- generate_q_plot(random.q.many, name='Random Market'))
+plot.random.q %>% save_plot('random.q')
+
+(plot.stable.q <- generate_q_plot(stable.q.many, name='Stable Market'))
+plot.stable.q %>% save_plot('stable.q')
+
+# T test
+
+two.t.test <- t.test(stable.q.many, random.q.many, "greater")
+two.p.value <- formatC(two.t.test$p.value, 4)
+```
+
+Summarize the result:
+
+```{r message=FALSE, warning=FALSE, echo=FALSE, out.width="50%"}
+two.market.result %>% 
+  bind_cols(
+    `Q Measure`= c(mean(random.q.many), mean(stable.q.many)),
+    `T test(QB > QA)` = c(glue('p-value = {two.p.value}'), '')
+  ) %>% 
+  t() %>% 
+  kable()
+```
+
+Although manager A can outperform by around 5% whereas manager B only outperforms by around 2%, manager B actually has a more significant outperformance and therefore B is the winner.
+
+The interpretation is that in a random market, it is easier to outperform the market by luck so a higher outperformance can result in a smaller significance.
+
+## 4. Limitations and Assumptions
+
+There are some limitations when applying the solution to realistic examples. The following is the description of those limitation and what assumption is made to overcome the limitation.
+
+### 4.1 Benchmark weighting changes are hard to track
+
+-   Limitation:
+
+The first issue is benchmark deviation. During our research, we found that the constituents of the selected indices are not fixed, and they may remove some original constituent stocks at specific times and replace them with others. Additionally, the weightings of constituent stocks also vary due to fluctuations in market capitalization. We have attempted to replicate the index return by using a fixed weighting but it results in large tracking error.
+
+-   Solution / Assumption:
+
+Originally the design is to use the weighting of the benchmark and the actual return of its component to compute the benchmark return. Due to this limitation, the return is therefore computed directly from the differences in the related index as an approximation.
+
+### 4.2 Fund holdings changes are hard to track
+
+-   Limitation:
+
+The second issue is that most funds only disclose their holdings once per quarter, and if the fund manager makes any rebalancing decisions during this period, they will not be made public. Since we do not have access to more advanced data sources like CRSP, actual weights cannot be used. This can also lead to biased results.
+
+-   Solution / Assumption:
+
+Originally the design is to use the weighting of the fund and the actual return of its component to compute the fund return. Due to this limitation, the return is therefore either computed from the fund market price (e.g. the price is public for ETF) or quoted directly from the issuer / third-party information provider.
+
+### 4.3 Equity only portfolio is not common
+
+-   Limitation:
+
+The third issue is that equity funds require at least 85% of their assets to be invested in the stock market, meaning that the vast majority of assets invested by these funds are typically around 90%, with the remaining assets generally being invested in the bond and cash markets. However, under the model we have created, when calculating the return of a fund, we can only assume that all assets are invested in the stock market. This can lead to a bias in the calculated return. Similarly, few funds have benchmarks that rely solely on index returns.
+
+-   Solution / Assumption:
+
+In this project, we have opted for a stock-only portfolio and have refrained from imposing any constraints on the monkey portfolio. We assume that the non-stock components in the portfolio have a negligible impact on the overall return. In case the proportion of these components is substantial, this solution may not be suitable.
+
+### 4.4 Monkey portfolios are unrealistic
+
+-   Limitation:
+
+The fourth issue is that when there are too many stocks in the stock market, there may be some stocks with relatively low investment value. This can lead to unsatisfactory results when conducting simulation modeling. In reality, the vast majority of funds invest more assets in stocks with higher market capitalization and investment value, such as leading companies like Apple and Nvidia in the S&P 500 index. However, in simulation modeling, there may be scenarios where no investment is made in these high-quality companies, rendering the model meaningless.
+
+-   Solution / Assumption:
+
+It is out of the scope of this project. Possible improvement is stated in section 6.
+
+### 4.5 Evaluation results are inconsistent
+
+-   Limitation:
+
+The fifth limitation of our model is that it solely evaluates the performance of a fund during a specific time period, which might not present a complete picture. The model's assessment of the fund's performance is limited to a particular timeframe, without the capacity to apply the model more comprehensively to evaluate the fund's performance across multiple periods.
+
+As we conducted our research, we found that for the same fund, we had to search across different periods to find a suitable date range for evaluation. This highlights that the evaluation results can fluctuate significantly, such that good results in a single period may not be very informative.
+
+-   Solution / Assumption:
+
+It is out of the scope of this project. Possible improvement is stated in section 6.
+
+### 4.6 Consideration of risk is not being factored in
+
+-   Limitation:
+
+The last limitation is thatwe did not factor in risk. This means that the observed outperformance could be due to investments that carry higher levels of risk. In a bull market, the portfolio may outperform the benchmark, but in a bear market, it may underperform. Therefore, relying solely on the Q measure to identify a skillful manager may not always be the most appropriate approach.
+
+-   Solution / Assumption:
+
+It is out of the scope of this project. Possible improvement is stated in section 6.
+
+## 5. Application to Realistic Examples
+
+In this section, we will utilize the solution technique to analyze several well-known portfolios in the real world that have a proven track record of long-term outperformance. Our objective is to assess whether this outperformance is significant.
+
+### 5.1 CITIC Fund
+
+-   This fund invests in constituent stocks of the HSTECH index, alternative constituent stocks, and other stocks listed on the Hong Kong Stock Exchange (including stocks eligible for the Hong Kong Stock Connect program).
+
+-   Benchmark:The return of the Hang Seng Tech Index, calculated in RMB, is multiplied by 95% and added to the after-tax interest rate of current deposit,which accounts for the remaining 5%.
+
+-   Asset allocation: 93.9% stock; 9.92% cash; 4.08% other asset
+
+```{r message=FALSE, warning=FALSE, out.width="50%", echo=FALSE}
+set.seed(5310)
+start.date =  '2023-01-13'
+end.date = '2023-04-14'
+
+report <- generate_report(
+  stock.space = read_csv('data/hstech.tidy.csv')$symbol,
+  benchmark.ret = 4075.12/4554.78 - 1,
+  candidate.ret = -0.0718, # read from app
+  start.date =  start.date,
+  end.date = end.date,
+  sample.count = SAMPLE.COUNT,
+  path.count = PATH.COUNT,
+  candidate.name = 'CITIC Fund',
+  benchmark.name = 'HS Tech'
+)
+print(report$plot.pdf)
+print(report$plot.cdf)
+```
+
+::: row
+::: column
+```{r echo=FALSE}
+print(report$plot.q) 
+```
+:::
+
+::: column
+```{r echo=FALSE}
+kable(report$result)
+```
+:::
+:::
+
+-   Test result:
+    -   Although the outperformance is pretty high, the Q measure is not outstanding.
+
+### 5.2 QDII-LOF Fund
+
+-   This fund invests in constituent stocks of the HSI index, alternative constituent stocks, and other stocks listed on the Hong Kong Stock Exchange (including stocks eligible for the Hong Kong Stock Connect program).
+
+-   Benchmark:The return of the Hang Seng Index, adjusted by the RMB exchange rate, is multiplied by 95% and added to the after-tax interest rate of current deposit in commercial banks, which accounts for the remaining 5%
+
+-   Asset allocation: 91.65% stock; 10.71% cash; 0.48%other asset
+
+```{r message=FALSE, warning=FALSE, out.width="50%", echo=FALSE}
+set.seed(5310)
+start.date =  '2023-01-13'
+end.date = '2023-04-13'
+
+report <- generate_report(
+  stock.space = read_csv('data/hsi.tidy.csv')$symbol,
+  benchmark.ret = get_single_stock_ret('^HSI', start.date, end.date),
+  candidate.ret = -0.0465, # read from app
+  start.date =  start.date,
+  end.date = end.date,
+  sample.count = SAMPLE.COUNT,
+  path.count = PATH.COUNT,
+  candidate.name = 'QDII-LOF',
+  benchmark.name = 'Hang Seng Index'
+)
+print(report$plot.pdf)
+print(report$plot.cdf)
+```
+
+::: row
+::: column
+```{r echo=FALSE}
+print(report$plot.q) 
+```
+:::
+
+::: column
+```{r echo=FALSE}
+kable(report$result)
+```
+:::
+:::
+
+-   Test result:
+    -   This portfolio has much lower outperformance, but it has much higher Q measure.
+
+### 5.3 Fidelity Contrafund Fund
+
+-   Fidelity Contrafund is a mutual fund managed by Fidelity Investments. The fund's objective is capital appreciation and it primarily invests in mid- to large-cap companies with growth potential. The fund has a long-term track record of outperforming its benchmark, the S&P 500 Index.
+-   The portfolio performance can be retrieved directly from yahoo finance as it is an ETF.
+
+```{r message=FALSE, warning=FALSE, out.width="50%", echo=FALSE}
+set.seed(5310)
+start.date =  '2022-12-19'
+# end.date = '2023-01-26'
+end.date = '2023-01-27'
+
+report <- generate_report(
+  stock.space = read_csv('data/sp500.tidy.csv')$symbol,
+  benchmark.ret = get_single_stock_ret('^GSPC', start.date, end.date),
+  candidate.ret = get_single_stock_ret('FCNTX', start.date, end.date),
+  start.date =  start.date,
+  end.date = end.date,
+  sample.count = SAMPLE.COUNT,
+  path.count = PATH.COUNT,
+  candidate.name = 'Fidelity Contrafund Fund',
+  benchmark.name = 'S&P 500'
+)
+print(report$plot.pdf)
+print(report$plot.cdf)
+```
+
+::: row
+::: column
+```{r echo=FALSE}
+print(report$plot.q) 
+```
+:::
+
+::: column
+```{r echo=FALSE}
+kable(report$result)
+```
+:::
+:::
+
+-   Test result:
+    -   The outperformance is similar to example 5.2, but it gives a even higher Q measure.
+    -   While this ETF has a well-established reputation for outperforming in the long run, it's worth noting that the extent of its outperformance can be inconsistent across different evaluation periods. This particular period is selected because it gives a good result. This issue is outlined in limitation 4.5.
+
+### 5.4 Berkshire Hathaway Portfolio
+
+-   Berkshire Hathaway is a holding company led by legendary investor Warren Buffet. The company's investment portfolio is diverse and includes investments in numerous publicly traded companies such as American Express, Apple, Coca-Cola, and Visa. Berkshire Hathaway's portfolio is known for its long-term focus and emphasis on high-quality companies with strong competitive advantages.
+-   The portfolio performance is referred to this [web-site](https://stockcircle.com/data/warren-buffett/performance)
+
+```{r message=FALSE, warning=FALSE, out.width="50%", echo=FALSE}
+# https://stockcircle.com/data/warren-buffett/performance
+set.seed(5310)
+start.date =  '2023-01-03'
+end.date = '2023-04-03'
+report <- generate_report(
+  stock.space = read_csv('data/sp500.tidy.csv')$symbol,
+  benchmark.ret = get_single_stock_ret('^GSPC', start.date, end.date),
+  candidate.ret = 0.92/0.84 - 1, # need to find manually on the web site
+  start.date =  start.date,
+  end.date = end.date,
+  sample.count = SAMPLE.COUNT,
+  path.count = PATH.COUNT,
+  candidate.name = 'Berkshire Hathaway Portfolio',
+  benchmark.name = 'S&P 500'
+)
+print(report$plot.pdf)
+print(report$plot.cdf)
+```
+
+::: row
+::: column
+```{r echo=FALSE}
+print(report$plot.q) 
+```
+:::
+
+::: column
+```{r echo=FALSE}
+kable(report$result)
+```
+:::
+:::
+
+-   Test result:
+    -   The solution fails to give informative result for this portfolio.
+    -   One potential explanation could be attributed to limitation 4.4. The unrestricted monkey portfolios may be too distant from the factual funds in the market. Both Berkshire Hathaway Portfolio and S&P 500 have high weight on high-market-value stocks like AAPL.
+
+## 6. Further Improvement
+
+### 6.1 Use Constraint Random Portfolio
+
+Realistic constraints can greatly enhance the quality of monkey portfolio generation, such as:
+
+-   setting a lower bound for the weight of top market-value stock;
+
+-   setting an upper bound for the weight of low market-value stock;
+
+-   limiting the total number of stocks in a single monkey portfolio,
+
+However, the biggest challenge lies in how to generate these portfolios with constraints. Simply generating unconstrained portfolios and discarding those that fail to meet the constraints can be incredibly inefficient, resulting in a significant number of discarded portfolios.
+
+To overcome this, genetic algorithms can be used as suggested in Burns P. (2007) study^[1]^. Further research is required to determine how this algorithm can be effectively implemented in generating random portfolios with constraints.
+
+### 6.2 Use Multiple Period for Evaluation
+
+One possible way to assess performance is to use a rolling window approach that generates a sequence of Q measures. However, it is important to note that outperformance may not be consistently observed in every period, making the interpretation of results challenging.
+
+### 6.3 Use Risk Adjusted Measure
+
+The majority of studies we came across employ risk-adjusted measures including:
+
+-   Information Ratio (IR) $$IR = \frac{R_{portfolio} − R_{benchmark} }{Tracking Error}$$
+
+-   Sharpe Ratio
+
+$$ SR = \frac{R_{portfolio} - R_{risk-free}}{σ_{portfolio}}$$
+
+## 7. Computation
+
+There are 3 variables affecting the computation time:
+
+-   n
+
+    -   number of stock in the universe
+
+    -   Up to 1000 stocks should be enough for most benchmark portfolios (e.g. Russell 1000 has around 1000 components)
+
+-   path size
+
+    -   number of monkey portfolio generated in one sample
+
+    -   For more stock in the universe, more path should be required to have enough diversity for the monkey portfolio. From the actual computation, for S&P 500, 10,000 path can already provide a good shape of distribution. In this test, we try to use up to 100,000 path to check the computation time.
+
+```{r message=FALSE, warning=FALSE, out.width="50%", echo=FALSE}
+set.seed(5310)
+
+stock_index <- read_csv('data/hstech.tidy.csv')
+us_index <- read_csv('data/sp500.tidy.csv')
+us_data <- get_stock_data_cached(us_index$symbol, '2023-01-03', '2023-04-03')
+us_data <- us_data %>%
+  mutate(ret=end.price/start.price - 1)
+ret.space <- us_data$ret
+
+monkey.1000 <- replicate(1000, gen_monkey_return(ret.space))
+monkey.10000 <- replicate(10000, gen_monkey_return(ret.space))
+monkey.50000 <- replicate(50000, gen_monkey_return(ret.space))
+monkey.100000 <- replicate(100000, gen_monkey_return(ret.space))
+
+monkey.merged <- list(
+  melt(list(monkey.1000 = monkey.1000, monkey.10000 = monkey.10000)),
+  melt(list(monkey.50000 = monkey.50000, monkey.100000 = monkey.100000))
+)
+
+for (merged in monkey.merged){
+  pdf.plot <- merged %>% ggplot(aes(x=value, fill=L1)) + 
+    ggtitle(
+      'Monkey Portfolio Return Distribution of Different Path size',
+      paste('Stock count', length(ret.space))
+    ) +
+    geom_density(alpha=0.25)
+  print(pdf.plot)
+}
+```
+
+-   sample size
+
+    -   number of sample to generate for the Q measure
+
+    -   From the actual computation. a sample size of 100 can already provide a narrow confidence interval. Therefore in this computation test only 100 is used.
+
+Environment
+
+-   12th Gen Intel(R) Core(TM) i5-12500 3.00 GHz
+
+-   Parallel simulation (11 cores) with parLapply using the package 'parallel'
+
+```{r message=FALSE, warning=FALSE, out.width="50%", echo=FALSE}
+options(digit=999)
+
+# WARNING: This function takes long time to run. So it will try to read cache from rds/comp.rds. Delete this file first if you need to re-run.
+comp.data <- generate_computation_data(
+  sample.count = 100,
+  n.choices = c(50, 100, 500, 1000),
+  path.choices = c(1000, 10000, 50000, 100000)
+)
+
+comp.data %>% 
+  mutate(n.choices=factor(n.choices)) %>% 
+  ggplot(aes(x=path.choices, y=time, color=n.choices)) +
+  ggtitle('Computation Test for Different Paramters') +
+  geom_line()
+```
+
+From the graph, it is observed that the computation time grows linearly with the path count. For the maximum work load case with 1000 stocks and 100,000 path count, the computation time takes several minutes.
+
+In general 10,000 path is enough to approximate the shape of the distribution. Then the computation time is within one minute. The solution should be feasible for most of the benchmark portfolios in reality.
+
+## 8. Conclusion
+
+In conclusion, we have developed a solution technique to address the problem of justifying significant outperformance of a portfolio compared to a benchmark. The Q measure, computed using simulation, has been used as a tool to determine the significance of the outperformance. Through the application of this technique to realistic examples, we have shown the effectiveness of the proposed solution. However, some limitations still exist which can be resolved by making assumptions, while others cannot. It is recommended to further explore possible improvements to this technique to make it more robust and reliable. Overall, this proposed solution technique offers a viable solution to a common challenge faced in portfolio management.
+
+## 9. References
+
+[1] Patrick Burns: 2007, Random Portfolios for Performance Measurement, *Optimization, Econometric and Financial Analysis*. partⅢ.page 230-251
+
+[2] Woo Chang Kim, Yongjae Lee: 2016, A uniformly distributed random portfolio, *Quantitative Finance*, vol 16. No.2
+
+[3] R Stein: 2014, Not fooled by randomness: Using random portfolios to analyze investment funds, *Investment Analysts Journal*, 43:79, 1-15
+
+[4] Keith Cuthbertson, Dirk Nitzsche, Niall O'Sullivan: 2008, UK mutual fund performance: Skill or luck?, *Journal of Empirical Finance* 15 (2008) 613--634
+
+[5] Yongjae Lee, Do-Gyun Kwon, Woo Chang Kim & Frank J. Fabozzi :2018, An alternative approach for portfolio performance evaluation: enabling fund evaluation relative to peer group via Malkiel's monkey, *Applied Economics*, Vol 50-Issue 40
+
+[6] Robert D. Arnott, Jason Hsu, Vitali Kalesnik, Phil Tindall: 2013,The Surprising Alpha From Malkiel's Monkey and Upside-Down Strategies, *The Journal of Portfolio Management*, Vol 39-No.4

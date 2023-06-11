@@ -1,0 +1,280 @@
+---
+title: "Clean Data"
+output: html_document
+---
+
+```{r setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(knitr)
+source('R/stock.r')
+```
+
+
+# Read from "data-raw" data and tidy up. Save to "data" folder
+```{r message=FALSE, warning=FALSE}
+library(readxl)
+
+KNOWN_OK_RDS <- 'rds/known.ok.rds'
+
+get_known_ok_symbol <- function(){
+  if (file.exists(KNOWN_OK_RDS)){
+    readRDS(KNOWN_OK_RDS)
+  }
+  else {
+    vector(mode='character')
+  }
+}
+
+save_known_ok_symbol <- function(new_data){
+  saveRDS(new_data, KNOWN_OK_RDS)
+}
+
+handle_symbol <- function(symbol){
+  if (grepl('\\.HK', symbol)){
+    symbol <- sub('\\.HK', '\\.hk', symbol)
+    symbol <- substr(symbol, 2, nchar(symbol))
+  } else{
+    symbol <- sub('\\.', '\\-', symbol)
+    symbol <- sub('VISA-VI', 'VISA.VI', symbol)
+    symbol <- sub('NOTA-SG', 'NOTA.SG', symbol)
+  }
+  return(symbol)
+}
+
+verify <- function(csv.name){
+  ds <- read_csv(csv.name)
+  ds <- ds %>% mutate(Price=0, Remark='')
+  row.count <- 1
+  known.ok.symbol = get_known_ok_symbol()
+  
+  for (symbol in ds$symbol){
+    tryCatch(
+      {
+        known_404_pattern <- c(
+          '\\*', '\\+', '\\%', 
+          '\\-TO', '\\-TAXMM', '\\-WT', '\\-TMP', '\\-RT',
+          '\\-PP', '\\-EPP', '\\-APP', '\\-FPP', '\\-C1PP'
+          )
+        if(any(sapply(known_404_pattern, grepl, symbol))){
+          ds[row.count, 'Remark'] <- 'Known 404 Pattern'
+          next
+        }
+        
+        known_404_symbol <- c('ZLIN', 'P911', 'ADYEN', '0VQD-L', 'PC8-BE', 'ABEA')
+        if (symbol %in% known_404_symbol){
+          ds[row.count, 'Remark'] <- 'Known 404 Symbol'
+          next
+        }
+        
+        if (symbol %in% known.ok.symbol){
+          next
+        }
+        
+        print(symbol)
+        s <- check_stock_yahoo(symbol)
+        ds[row.count, 'Price'] <- s[nrow(s), ncol(s)]
+        known.ok.symbol <- c(known.ok.symbol, symbol)
+        save_known_ok_symbol(known.ok.symbol)
+      },
+      error = function(cond){
+        print(cond)
+        ds[row.count, 'Remark'] <<- 'Error'
+      },
+      warning = function(cond){
+        print(cond)
+        ds[row.count, 'Remark'] <<- 'Warning'
+      },
+      finally = {
+        row.count <- row.count + 1
+      }
+    )
+  }
+  
+  ds.404 <- ds %>% filter(!(Remark==''))
+  if (nrow(ds.404) > 0){
+    csv.404.name <- sub('tidy', '404', csv.name)
+    write_csv(ds.404, csv.404.name)
+  }
+
+  return(tibble(
+    name=csv.name,
+    weight.total=sum(ds$weight),
+    symbol.total=nrow(ds),
+    symbol.404=nrow(ds.404),
+    weight.404=sum(ds.404$weight),
+    weight.valid=(1-weight.404/weight.total)*100,
+  ))
+}
+
+read_csv('data-raw/megallan fund .csv') %>% 
+  filter(!is.na(Ticker)) %>% 
+  mutate(symbol=Ticker, weight=sub('%', '', weight, )) %>% 
+  select(symbol, weight) %>% 
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/megallan.tidy.csv')
+
+read_csv('data-raw/Fidelity Contrafund.csv') %>% 
+  filter(!is.na(Ticker)) %>% 
+  mutate(symbol=Ticker, weight=sub('%', '', weight, )) %>% 
+  select(symbol, weight) %>% 
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/contrafund.tidy.csv')
+
+read_csv('data-raw/weights of VWUAX.CSV') %>% 
+  filter(!is.na(Ticker)) %>% 
+  mutate(symbol=Ticker, weight=`Weight(calculated)`*100) %>% 
+  select(symbol, weight) %>% 
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/vwuax.tidy.csv')
+
+
+read_excel('data-raw/S&P500.xlsx', 2) %>% 
+  mutate(symbol=Symbol, weight=Weight) %>% 
+  select(symbol, weight) %>% 
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/sp500.tidy.csv')
+
+read_csv('data-raw/Berkshire Hathaway.csv') %>% 
+  filter(!is.na(Symbol)) %>% 
+  mutate(symbol=Symbol, weight=as.numeric(sub('%', '', `Pct of portfolio`))) %>% 
+  select(symbol, weight) %>%
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/brk.tidy.csv')
+
+read_csv('data-raw/weights of STSEX.csv') %>% 
+  filter(!is.na(Ticker)) %>% 
+  mutate(symbol=Ticker, weight=`% Portfolio Weight`) %>% 
+  select(symbol, weight) %>% 
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/stsex.tidy.csv')
+
+read_excel('data-raw/HSTECH BenchMark.xlsx') %>% 
+  mutate(symbol=Symbol, weight=Weight*100) %>% 
+  select(symbol, weight) %>% 
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/hstech.tidy.csv')
+
+read_excel('data-raw/HSTECH profolio(建信恒生科技指数C).xlsx') %>% 
+  mutate(symbol=Symbol, weight=Weight*100) %>% 
+  select(symbol, weight) %>% 
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/hstech-c.tidy.csv')
+
+read_excel('data-raw/HSI BenchMark.xlsx') %>% 
+  mutate(symbol=Symbol, weight=Weight*100) %>% 
+  select(symbol, weight) %>% 
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/hsi.tidy.csv')
+
+read_excel('data-raw/HSI Profolio(恒生LOF).xlsx') %>% 
+  filter(!is.na(Symbol)) %>% 
+  mutate(symbol=Symbol, weight=Weight*100) %>% 
+  select(symbol, weight) %>% 
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/hslof.tidy.csv')
+
+read_csv('data-raw/weights of VDIGX.csv') %>% 
+  filter(!is.na(Holdings)) %>% 
+  mutate(symbol=Ticker, weight=`% Portfolio Weight`) %>% 
+  select(symbol, weight) %>% 
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/vdigx.tidy.csv')
+
+read_csv('data-raw/weights of PRBLX.csv') %>% 
+  filter(!is.na(Holdings)) %>% 
+  mutate(symbol=Ticker, weight=`% Portfolio Weight`) %>% 
+  select(symbol, weight) %>% 
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/prblx.tidy.csv')
+
+read_csv('data-raw/weights of PRBLX.csv') %>% 
+  filter(!is.na(Holdings)) %>% 
+  mutate(symbol=Ticker, weight=`% Portfolio Weight`) %>% 
+  select(symbol, weight) %>% 
+  rowwise() %>% 
+  mutate(symbol=handle_symbol(symbol)) %>% 
+  write_csv('data/prblx.tidy.csv')
+
+bind_rows(
+  verify('data/megallan.tidy.csv'),
+  verify('data/contrafund.tidy.csv'),
+  verify('data/vwuax.tidy.csv'),
+  verify('data/sp500.tidy.csv'),
+  verify('data/brk.tidy.csv'),
+  verify('data/stsex.tidy.csv'),
+  verify('data/hstech.tidy.csv'),
+  verify('data/hstech-c.tidy.csv'),
+  verify('data/hsi.tidy.csv'),
+  verify('data/hslof.tidy.csv'),
+  verify('data/vdigx.tidy.csv'),
+  verify('data/prblx.tidy.csv'),
+) %>% kable()
+```
+
+# Check Portfolio Return
+```{r message=FALSE, warning=FALSE}
+
+check_return <- function(csv.name, start.date, end.date){
+  known.ok.symbol <- get_known_ok_symbol()
+  portfolio <- read_csv(csv.name) %>% filter(symbol %in% known.ok.symbol)
+  
+  history.data <- get_stock_data_cached(portfolio$symbol, start.date, end.date)
+  
+  ds <- left_join(portfolio, history.data) %>%
+    mutate(ret=end.price/start.price - 1) %>% 
+    filter(!is.na(ret))
+  # Divide by total_weight as it may be less than 100
+  ret <- sum(ds$weight * ds$ret / sum(portfolio$weight)) * 100
+  
+  tibble(
+    name=csv.name,
+    start.date=start.date,
+    end.date=end.date,
+    ret=ret,
+  )
+}
+
+bind_rows(
+  # One Quarter US
+  check_return('data/sp500.tidy.csv', '2023-01-03', '2023-04-03'),
+  check_return('data/vdigx.tidy.csv', '2023-01-03', '2023-04-03'),
+  check_return('data/prblx.tidy.csv', '2023-01-03', '2023-04-03'),
+  check_return('data/brk.tidy.csv', '2023-01-03', '2023-04-03'),
+  check_return('data/megallan.tidy.csv', '2023-01-03', '2023-04-03'),
+  check_return('data/contrafund.tidy.csv', '2023-01-03', '2023-04-03'),
+  check_return('data/stsex.tidy.csv', '2023-01-03', '2023-04-03'),
+  # One Quarter HK
+  check_return('data/hstech.tidy.csv', '2023-01-03', '2023-04-03'),
+  check_return('data/hstech-c.tidy.csv', '2023-01-03', '2023-04-03'),
+  check_return('data/hsi.tidy.csv', '2023-01-03', '2023-04-03'),
+  check_return('data/hslof.tidy.csv', '2023-01-03', '2023-04-03'),
+  # One Month US
+  # check_return('data/sp500.tidy.csv', '2023-03-01', '2023-04-03'),
+  # check_return('data/vdigx.tidy.csv', '2023-03-01', '2023-04-03'),
+  # check_return('data/prblx.tidy.csv', '2023-03-01', '2023-04-03'),
+  # check_return('data/brk.tidy.csv', '2023-03-01', '2023-04-03'),
+  # check_return('data/megallan.tidy.csv', '2023-03-01', '2023-04-03'),
+  # check_return('data/contrafund.tidy.csv', '2023-03-01', '2023-04-03'),
+  # check_return('data/stsex.tidy.csv', '2023-03-01', '2023-04-03'),
+  # One Month HK
+  # check_return('data/hstech.tidy.csv', '2023-03-01', '2023-04-03'),
+  # check_return('data/hstech-c.tidy.csv', '2023-03-01', '2023-04-03'),
+  # check_return('data/hstech.tidy.csv', '2022-04-01', '2023-04-03'),
+  # check_return('data/hstech-c.tidy.csv', '2022-04-01', '2023-04-03'),
+  # check_return('data/hsi.tidy.csv', '2023-03-01', '2023-04-03'),
+  # check_return('data/hslof.tidy.csv', '2023-03-01', '2023-04-03'),
+) %>% kable()
+
+```

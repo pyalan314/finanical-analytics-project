@@ -1,0 +1,269 @@
+No.,Ticker,Holdings,Shares,Market value,Weight(calculated)
+152,DNA,Ginkgo Bioworks Holdings Inc.,"18,631,948","$31,487,992 ",0.058200504
+2,AAPL,Apple Inc.,"17,678,921","$2,297,022,206 ",0.055223539
+3,AMZN,Amazon.com Inc.,"17,097,093","$1,436,155,812 ",0.053406087
+14,SHOP,Shopify Inc. Class A,"11,076,451","$384,463,614 ",0.034599443
+4,GOOG,Alphabet Inc. Class C,"10,925,122","$969,386,075 ",0.034126738
+11,TTD,Trade Desk Inc. Class A,"10,790,071","$483,718,883 ",0.03370488
+26,UBER,Uber Technologies Inc.,"10,451,441","$258,464,136 ",0.032647103
+1,MSFT,Microsoft Corp.,"9,906,855","$2,375,861,966 ",0.030945983
+16,SLB,Schlumberger Ltd.,"6,146,087","$328,569,811 ",0.019198495
+8,TSLA,Tesla Inc.,"5,664,568","$697,761,486 ",0.017694377
+119,SNAP,Snap Inc.,"5,293,965","$47,380,987 ",0.016536727
+99,COUR,Coursera Inc.,"5,183,577","$61,321,716 ",0.016191908
+6,NVDA,NVIDIA Corp.,"4,933,590","$720,994,843 ",0.015411025
+13,GOOGL,Alphabet Inc. Class A,"4,748,835","$418,989,712 ",0.014833907
+54,RBLX,ROBLOX Corp.,"4,634,703","$131,903,647 ",0.014477394
+175,RDFN,Redfin Corp.,"4,448,817","$18,862,984 ",0.013896743
+66,CHGG,Chegg Inc.,"4,322,721","$109,235,160 ",0.013502858
+48,CHWY,Chewy Inc.,"4,065,368","$150,743,845 ",0.012698966
+35,BSX,Boston Scientific Corp.,"3,936,512","$182,142,410 ",0.012296459
+70,DNLI,Denali Therapeutics Inc.,"3,762,284","$104,629,118 ",0.011752224
+65,ZI,ZoomInfo Technologies Inc. Class A,"3,629,915","$109,296,741 ",0.011338744
+157,RXRX,Recursion Pharmaceuticals Inc. Class A,"3,628,847","$27,978,410 ",0.011335408
+83,PINS,Pinterest Inc. Class A,"3,582,178","$86,975,282 ",0.011189628
+23,CSGP,CoStar Group Inc.,"3,452,594","$266,816,464 ",0.010784847
+46,NET,Cloudflare Inc. Class A,"3,364,558","$152,111,667 ",0.01050985
+150,AFRM,Affirm Holdings Inc.,"3,316,182","$32,067,480 ",0.010358738
+89,HCP,HashiCorp Inc. Class A,"3,009,303","$82,274,344 ",0.009400142
+10,MRNA,Moderna Inc.,"2,879,230","$517,167,293 ",0.008993833
+9,V,Visa Inc. Class A,"2,737,873","$568,820,494 ",0.008552277
+169,SG,Sweetgreen Inc. Class A,"2,544,318","$21,804,805 ",0.007947671
+5,MA,Mastercard Inc. Class A,"2,519,978","$876,271,950 ",0.00787164
+198,SANA,Sana Biotechnology Inc.,"2,456,509","$9,703,211 ",0.007673382
+91,W,Wayfair Inc.,"2,292,785","$75,409,699 ",0.007161959
+36,SCHW,Charles Schwab Corp.,"2,175,961","$181,170,513 ",0.006797036
+61,TRU,TransUnion,"2,137,220","$121,287,235 ",0.006676021
+21,CRM,salesforce.com Inc.,"2,130,386","$282,467,880 ",0.006654674
+156,LMND,Lemonade Inc.,"2,122,348","$29,033,721 ",0.006629566
+97,EADSY,Airbus SE ADR,"2,099,497","$62,271,081 ",0.006558186
+39,ABNB,Airbnb Inc. Class A,"2,032,789","$173,803,460 ",0.006349811
+75,TWLO,Twilio Inc. Class A,"2,018,013","$98,801,916 ",0.006303655
+76,DASH,DoorDash Inc. Class A,"2,005,787","$97,922,521 ",0.006265465
+22,SNOW,Snowflake Inc. Class A,"1,967,163","$282,366,577 ",0.006144815
+51,NVCR,Novocure Ltd.,"1,912,645","$140,292,511 ",0.005974518
+49,TJX,TJX Cos. Inc.,"1,843,754","$146,762,818 ",0.005759323
+195,SWN,Southwestern Energy Co.,"1,719,520","$10,059,192 ",0.005371254
+32,NKE,NIKE Inc. Class B,"1,671,600","$195,593,916 ",0.005221567
+98,MRVL,Marvell Technology Inc.,"1,669,046","$61,821,464 ",0.005213589
+69,SQ,Square Inc.,"1,665,605","$104,666,618 ",0.00520284
+95,ROKU,Roku Inc.,"1,644,001","$66,910,841 ",0.005135356
+153,RIVN,Rivian Automotive Inc. Class A,"1,612,154","$29,711,998 ",0.005035876
+137,DBX,Dropbox Inc. Class A,"1,571,223","$35,163,971 ",0.00490802
+45,GPN,Global Payments Inc.,"1,567,156","$155,649,934 ",0.004895316
+67,MCHP,Microchip Technology Inc.,"1,520,807","$106,836,692 ",0.004750536
+12,NFLX,Netflix Inc.,"1,444,772","$426,034,367 ",0.004513026
+110,TXG,10X Genomics Inc. Class A,"1,428,504","$52,054,686 ",0.004462209
+72,DDOG,Datadog Inc. Class A,"1,402,223","$103,063,391 ",0.004380116
+78,ZM,Zoom Video Communications Inc. Class A,"1,385,209","$93,834,058 ",0.004326969
+41,TEAM,Atlassian Corp. Ltd. Class A,"1,345,082","$173,085,152 ",0.004201625
+7,UNH,UnitedHealth Group Inc.,"1,335,822","$708,226,108 ",0.004172699
+86,CDAY,Ceridian HCM Holding Inc.,"1,320,377","$84,702,185 ",0.004124454
+43,NVO,Novo Nordisk A/S ADR,"1,269,620","$171,830,371 ",0.003965904
+84,FIS,Fidelity National Information Services Inc.,"1,257,446","$85,317,711 ",0.003927877
+27,AMT,American Tower Corp.,"1,198,679","$253,952,133 ",0.003744306
+228,CVNA,Carvana Co. Class A,"1,163,576","$5,515,350 ",0.003634655
+40,A,Agilent Technologies Inc.,"1,160,657","$173,692,320 ",0.003625537
+19,DHR,Danaher Corp.,"1,136,966","$301,773,516 ",0.003551534
+62,ABT,Abbott Laboratories,"1,104,619","$121,276,120 ",0.003450492
+155,NCNO,nCino Inc.,"1,104,425","$29,200,997 ",0.003449886
+55,FRC,First Republic Bank/CA,"1,079,338","$131,560,509 ",0.003371522
+29,ALNY,Alnylam Pharmaceuticals Inc.,"1,039,111","$246,944,729 ",0.003245865
+42,WDAY,Workday Inc. Class A,"1,029,505","$172,267,072 ",0.003215859
+31,ILMN,Illumina Inc.,"1,008,952","$204,010,094 ",0.003151657
+28,EL,Estee Lauder Cos. Inc. Class A,"1,002,939","$248,839,195 ",0.003132875
+15,LLY,Eli Lilly & Co.,"973,413","$356,113,412 ",0.003040644
+183,HLF,Herbalife Nutrition Ltd.,"971,348","$14,453,658 ",0.003034194
+52,ZTS,Zoetis Inc.,"941,324","$137,951,032 ",0.002940408
+100,AMD,Advanced Micro Devices Inc.,"935,938","$60,620,704 ",0.002923584
+20,ADBE,Adobe Inc.,"876,290","$294,897,874 ",0.002737262
+125,FTNT,Fortinet Inc.,"874,144","$42,736,900 ",0.002730558
+56,MAR,Marriott International Inc./MD Class A,"872,921","$129,969,208 ",0.002726738
+57,AXP,American Express Co.,"864,674","$127,755,584 ",0.002700977
+104,OKTA,Okta Inc.,"854,277","$58,372,747 ",0.0026685
+102,DUOL,Duolingo Inc.,"844,034","$60,036,138 ",0.002636504
+139,ALSN,Allison Transmission Holdings Inc.,"839,373","$34,917,917 ",0.002621944
+68,HLT,Hilton Worldwide Holdings Inc.,"829,188","$104,776,196 ",0.00259013
+47,FLT,FleetCor Technologies Inc.,"823,003","$151,169,191 ",0.00257081
+25,LULU,Lululemon Athletica Inc.,"806,997","$258,545,699 ",0.002520812
+105,BX,Blackstone Group LP,"786,490","$58,349,693 ",0.002456754
+80,ETSY,Etsy Inc.,"759,869","$91,017,109 ",0.002373598
+34,WSO,Watsco Inc.,"758,832","$189,252,701 ",0.002370359
+227,COMM,CommScope Holding Co. Inc.,"753,597","$5,538,938 ",0.002354006
+142,MO,Altria Group Inc.,"741,178","$33,879,246 ",0.002315213
+174,NTNX,Nutanix Inc.,"727,918","$18,962,264 ",0.002273793
+17,COST,Costco Wholesale Corp.,"703,822","$321,294,743 ",0.002198525
+30,HD,Home Depot Inc.,"687,266","$217,079,839 ",0.002146809
+37,ISRG,Intuitive Surgical Inc.,"682,410","$181,077,494 ",0.00213164
+92,MRK,Merck & Co. Inc.,"666,773","$73,978,464 ",0.002082795
+85,PGR,Progressive Corp.,"656,582","$85,165,251 ",0.002050961
+93,QCOM,QUALCOMM Inc.,"648,554","$71,302,027 ",0.002025884
+114,SPOT,Spotify Technology SA,"639,190","$50,464,051 ",0.001996634
+58,EFX,Equifax Inc.,"638,460","$124,091,086 ",0.001994354
+164,TPR,Tapestry Inc.,"637,856","$24,289,556 ",0.001992467
+168,HRB,H&R Block Inc.,"631,183","$23,044,491 ",0.001971623
+50,STZ,Constellation Brands Inc. Class A,"631,168","$146,273,184 ",0.001971576
+38,VRTX,Vertex Pharmaceuticals Inc.,"617,870","$178,428,499 ",0.001930037
+73,MMC,Marsh & McLennan Cos. Inc.,"610,226","$100,980,198 ",0.001906159
+146,BYD,Boyd Gaming Corp.,"604,632","$32,970,583 ",0.001888685
+87,TMUS,T-Mobile US Inc.,"600,914","$84,127,960 ",0.001877071
+53,PEN,Penumbra Inc.,"596,424","$132,680,483 ",0.001863046
+103,P911,Dr Ing hc F Porsche AG Preference shares,"587,957","$59,332,799 ",0.001836598
+178,CC,Chemours Co.,"583,627","$17,870,659 ",0.001823072
+106,CRWD,Crowdstrike Holdings Inc. Class A,"544,645","$57,345,672 ",0.001701304
+177,TDC,Teradata Corp.,"538,222","$18,116,553 ",0.001681241
+133,JBL,Jabil Inc.,"535,447","$36,517,485 ",0.001672573
+144,ACGL,Arch Capital Group Ltd.,"531,022","$33,337,561 ",0.00165875
+71,MDB,MongoDB Inc.,"524,832","$103,307,931 ",0.001639415
+161,TOL,Toll Brothers Inc.,"522,263","$26,071,369 ",0.00163139
+253,ATUS,Altice USA Inc. Class A,"511,427","$2,352,564 ",0.001597541
+59,SYK,Stryker Corp.,"506,429","$123,816,826 ",0.001581929
+149,KO,Coca-Cola Co.,"505,904","$32,180,553 ",0.001580289
+217,EXEL,Exelixis Inc.,"475,960","$7,634,398 ",0.001486753
+90,ABBV,AbbVie Inc.,"475,779","$76,890,644 ",0.001486188
+82,ADSK,Autodesk Inc.,"471,191","$88,051,462 ",0.001471856
+44,SPGI,S&P Global Inc.,"467,722","$156,658,807 ",0.00146102
+190,HPQ,HP Inc.,"465,189","$12,499,628 ",0.001453108
+197,AVTR,Avantor Inc.,"463,291","$9,770,807 ",0.001447179
+181,DAL,Delta Air Lines Inc.,"443,620","$14,577,353 ",0.001385733
+184,SYF,Synchrony Financial,"438,678","$14,414,959 ",0.001370296
+242,PLTK,Playtika Holding Corp.,"434,418","$3,696,897 ",0.001356989
+160,ON,ON Semiconductor Corp.,"433,673","$27,048,185 ",0.001354662
+18,MC,LVMH Moet Hennessy Louis Vuitton SE,"424,146","$308,648,047 ",0.001324902
+112,META,Facebook Inc. Class A,"421,478","$50,720,663 ",0.001316568
+63,MKTX,MarketAxess Holdings Inc.,"414,867","$115,702,258 ",0.001295918
+129,AMAT,Applied Materials Inc.,"414,424","$40,356,609 ",0.001294534
+115,EOG,EOG Resources Inc.,"387,967","$50,249,486 ",0.00121189
+77,GD,General Dynamics Corp.,"384,970","$95,514,907 ",0.001202528
+167,DAR,Darling Ingredients Inc.,"371,933","$23,279,286 ",0.001161805
+108,PG,Procter & Gamble Co.,"367,729","$55,733,007 ",0.001148673
+206,PPC,Pilgrim's Pride Corp.,"363,374","$8,622,865 ",0.001135069
+33,NOC,Northrop Grumman Corp.,"356,178","$194,334,279 ",0.001112591
+128,SPG,Simon Property Group Inc.,"345,912","$40,637,742 ",0.001080523
+94,LOW,Lowe's Cos. Inc.,"344,756","$68,689,185 ",0.001076912
+163,RHI,Robert Half International Inc.,"341,428","$25,207,629 ",0.001066517
+74,PODD,Insulet Corp.,"338,807","$99,741,393 ",0.001058329
+81,ACN,Accenture plc Class A,"337,318","$90,009,935 ",0.001053678
+211,RRC,Range Resources Corp.,"319,792","$8,001,196 ",0.000998932
+176,LPX,Louisiana-Pacific Corp.,"315,275","$18,664,280 ",0.000984823
+24,MELI,MercadoLibre Inc.,"314,710","$266,320,190 ",0.000983058
+116,CDNS,Cadence Design Systems Inc.,"301,760","$48,474,726 ",0.000942606
+101,UNP,Union Pacific Corp.,"292,126","$60,490,531 ",0.000912512
+111,PEP,PepsiCo Inc.,"280,779","$50,725,534 ",0.000877068
+235,TRIP,TripAdvisor Inc.,"278,149","$5,001,119 ",0.000868852
+151,MANH,Manhattan Associates Inc.,"261,636","$31,762,610 ",0.000817271
+162,STLD,Steel Dynamics Inc.,"258,183","$25,224,479 ",0.000806485
+170,ORCL,Oracle Corp.,"256,291","$20,949,226 ",0.000800575
+165,DFS,Discover Financial Services,"247,326","$24,195,903 ",0.000772571
+60,ELV,Anthem Inc.,"239,743","$122,980,967 ",0.000748884
+196,BBWI,Bath & Body Works Inc.,"238,365","$10,044,701 ",0.000744579
+79,NOW,ServiceNow Inc.,"236,768","$91,929,911 ",0.000739591
+107,CAT,Caterpillar Inc.,"234,956","$56,286,059 ",0.000733931
+121,IQV,IQVIA Holdings Inc.,"225,018","$46,103,938 ",0.000702887
+118,ALGN,Align Technology Inc.,"224,883","$47,427,825 ",0.000702466
+179,GDDY,GoDaddy Inc. Class A,"221,494","$16,572,181 ",0.000691879
+234,TDOC,Teladoc Health Inc.,"219,087","$5,181,408 ",0.000684361
+88,INTU,Intuit Inc.,"213,038","$82,918,650 ",0.000665466
+147,WM,Waste Management Inc.,"210,090","$32,958,919 ",0.000656257
+180,CL,Colgate-Palmolive Co.,"208,289","$16,411,090 ",0.000650631
+226,CSX,CSX Corp.,"203,780","$6,313,104 ",0.000636546
+154,EXR,Extra Space Storage Inc.,"199,921","$29,424,373 ",0.000624492
+203,MOS,Mosaic Co.,"198,756","$8,719,426 ",0.000620853
+223,TNL,Travel + Leisure Co.,"188,825","$6,873,230 ",0.000589832
+126,IEX,IDEX Corp.,"185,714","$42,404,078 ",0.000580114
+201,OLN,Olin Corp.,"168,233","$8,906,255 ",0.000525508
+241,WEN,Wendy's Co.,"166,717","$3,772,806 ",0.000520773
+185,SPLK,Splunk Inc.,"165,084","$14,212,082 ",0.000515672
+134,HCA,HCA Healthcare Inc.,"148,826","$35,712,287 ",0.000464887
+117,SNPS,Synopsys Inc.,"148,797","$47,509,394 ",0.000464796
+172,AGCO,AGCO Corp.,"146,011","$20,250,266 ",0.000456094
+205,NFG,National Fuel Gas Co.,"137,202","$8,684,887 ",0.000428577
+238,AR,Antero Resources Corp.,"134,502","$4,168,217 ",0.000420143
+158,LPLA,LPL Financial Holdings Inc.,"128,978","$27,881,174 ",0.000402888
+171,VEEV,Veeva Systems Inc. Class A,"128,509","$20,738,782 ",0.000401423
+209,LSCC,Lattice Semiconductor Corp.,"128,001","$8,304,705 ",0.000399836
+124,IT,Gartner Inc.,"127,483","$42,852,136 ",0.000398218
+204,BRKR,Bruker Corp.,"127,268","$8,698,768 ",0.000397546
+130,CI,Cigna Corp.,"121,260","$40,178,288 ",0.000378779
+113,LRCX,Lam Research Corp.,"120,527","$50,657,498 ",0.000376489
+221,DVN,Devon Energy Corp.,"118,193","$7,270,051 ",0.000369199
+131,MPWR,Monolithic Power Systems Inc.,"112,847","$39,903,828 ",0.000352499
+132,URI,United Rentals Inc.,"108,285","$38,486,655 ",0.000338249
+215,EW,Edwards Lifesciences Corp.,"103,805","$7,744,891 ",0.000324255
+145,RE,Everest Re Group Ltd.,"99,948","$33,109,774 ",0.000312207
+109,ASML,ASML Holding NV,"98,243","$53,679,975 ",0.000306881
+246,DOCS,Doximity Inc. Class A,"95,212","$3,195,315 ",0.000297413
+136,MCK,McKesson Corp.,"94,506","$35,451,091 ",0.000295208
+166,ENPH,Enphase Energy Inc.,"88,569","$23,467,242 ",0.000276662
+218,CF,CF Industries Holdings Inc.,"88,489","$7,539,263 ",0.000276413
+213,LW,Lamb Weston Holdings Inc.,"87,920","$7,856,531 ",0.000274635
+148,KLAC,KLA Corp.,"87,384","$32,946,390 ",0.000272961
+200,DXCM,DexCom Inc.,"84,556","$9,575,121 ",0.000264127
+233,PDCE,PDC Energy Inc.,"83,956","$5,329,527 ",0.000262253
+232,BJ,BJ's Wholesale Club Holdings Inc.,"81,479","$5,390,651 ",0.000254515
+159,CHTR,Charter Communications Inc. Class A,"81,226","$27,543,737 ",0.000253725
+188,TXN,Texas Instruments Inc.,"81,127","$13,403,803 ",0.000253416
+64,ADYEN,Adyen NV,"80,950","$112,378,774 ",0.000252863
+122,TMO,Thermo Fisher Scientific Inc.,"79,987","$44,048,041 ",0.000249855
+127,AVGO,Broadcom Inc.,"74,914","$41,886,665 ",0.000234008
+138,ULTA,Ulta Beauty Inc.,"74,583","$34,984,648 ",0.000232974
+216,ARW,Arrow Electronics Inc.,"73,982","$7,736,298 ",0.000231097
+135,LMT,Lockheed Martin Corp.,"73,206","$35,613,987 ",0.000228673
+120,EQIX,Equinix Inc.,"71,167","$46,616,520 ",0.000222304
+140,GWW,WW Grainger Inc.,"62,485","$34,757,281 ",0.000195184
+186,HSY,Hershey Co.,"61,301","$14,195,473 ",0.000191486
+182,ADP,Automatic Data Processing Inc.,"60,573","$14,468,467 ",0.000189212
+214,RSG,Republic Services Inc. Class A,"60,073","$7,748,816 ",0.00018765
+194,JBHT,JB Hunt Transport Services Inc.,"58,699","$10,234,758 ",0.000183358
+240,LYV,Live Nation Entertainment Inc.,"56,190","$3,918,691 ",0.00017552
+189,LH,Laboratory Corp. of America Holdings,"55,728","$13,122,829 ",0.000174077
+237,EXPE,Expedia Group Inc.,"53,448","$4,682,045 ",0.000166955
+231,EXPD,Expeditors International of Washington Inc.,"51,949","$5,398,540 ",0.000162273
+123,ORLY,O'Reilly Automotive Inc.,"50,904","$42,964,503 ",0.000159009
+210,LSTR,Landstar System Inc.,"50,644","$8,249,908 ",0.000158196
+143,REGN,Regeneron Pharmaceuticals Inc.,"46,345","$33,437,454 ",0.000144768
+191,MCD,McDonald's Corp.,"46,313","$12,204,865 ",0.000144668
+173,DE,Deere & Co.,"44,967","$19,280,051 ",0.000140463
+96,MTD,Mettler-Toledo International Inc.,"44,107","$63,754,463 ",0.000137777
+252,BRO,Brown & Brown Inc.,"43,286","$2,466,003 ",0.000135212
+222,UPS,United Parcel Service Inc. Class B,"41,149","$7,153,342 ",0.000128537
+187,WAT,Waters Corp.,"39,326","$13,472,301 ",0.000122842
+202,TSCO,Tractor Supply Co.,"39,108","$8,798,127 ",0.000122161
+208,CRL,Charles River Laboratories International Inc.,"38,509","$8,391,111 ",0.00012029
+192,AON,Aon plc Class A,"38,079","$11,429,031 ",0.000118947
+225,NXST,Nexstar Media Group Inc. Class A,"37,945","$6,641,513 ",0.000118529
+207,WST,West Pharmaceutical Services Inc.,"36,558","$8,603,925 ",0.000114196
+249,INCY,Incyte Corp.,"33,999","$2,730,800 ",0.000106202
+247,SBUX,Starbucks Corp.,"31,720","$3,146,624 ",9.90836E-05
+245,CPT,Camden Property Trust,"31,327","$3,504,865 ",9.7856E-05
+265,IONS,Ionis Pharmaceuticals Inc.,"29,779","$1,124,753 ",9.30205E-05
+243,EA,Electronic Arts Inc.,"29,675","$3,625,692 ",9.26956E-05
+199,EPAM,EPAM Systems Inc.,"29,606","$9,703,070 ",9.24801E-05
+229,MSGS,Madison Square Garden Co. Class A,"29,592","$5,425,101 ",9.24364E-05
+267,APPN,Appian Corp. Class A,"29,486","$960,064 ",9.21052E-05
+239,FANG,Diamondback Energy Inc.,"29,073","$3,976,605 ",9.08152E-05
+212,PSA,Public Storage,"28,550","$7,999,425 ",8.91815E-05
+220,ODFL,Old Dominion Freight Line Inc.,"25,826","$7,328,902 ",8.06725E-05
+224,AMGN,Amgen Inc.,"25,525","$6,703,886 ",7.97323E-05
+255,CHD,Church & Dwight Co. Inc.,"23,893","$1,926,015 ",7.46344E-05
+219,AMP,Ameriprise Financial Inc.,"23,868","$7,431,779 ",7.45563E-05
+248,NBIX,Neurocrine Biosciences Inc.,"22,925","$2,738,162 ",7.16107E-05
+236,HON,Honeywell International Inc.,"22,649","$4,853,681 ",7.07485E-05
+251,WSM,Williams-Sonoma Inc.,"21,491","$2,469,746 ",6.71313E-05
+258,CNC,Centene Corp.,"20,264","$1,661,851 ",6.32985E-05
+230,SBAC,SBA Communications Corp. Class A,"19,343","$5,422,036 ",6.04216E-05
+264,NTAP,NetApp Inc.,"19,086","$1,146,305 ",5.96188E-05
+266,PFGC,Performance Food Group Co.,"19,010","$1,109,994 ",5.93814E-05
+250,CDW,CDW Corp./DE,"15,046","$2,686,915 ",4.69991E-05
+141,AZO,AutoZone Inc.,"14,044","$34,635,032 ",4.38692E-05
+254,NXPI,NXP Semiconductors NV,"12,996","$2,053,758 ",4.05955E-05
+260,TTEK,Tetra Tech Inc.,"9,449","$1,371,900 ",2.95158E-05
+244,CTAS,Cintas Corp.,"7,972","$3,600,315 ",2.49021E-05
+262,KEYS,Keysight Technologies Inc.,"7,487","$1,280,801 ",2.33871E-05
+257,BIIB,Biogen Inc.,"6,594","$1,826,010 ",2.05976E-05
+259,CSL,Carlisle Cos. Inc.,"5,915","$1,393,870 ",1.84766E-05
+268,ALB,Albemarle Corp.,"3,810","$826,237 ",1.19013E-05
+263,IDXX,IDEXX Laboratories Inc.,"2,810","$1,146,368 ",8.77758E-06
+193,NVR,NVR Inc.,"2,222","$10,249,153 ",6.94085E-06
+256,CMG,Chipotle Mexican Grill Inc. Class A,"1,335","$1,852,299 ",4.17013E-06
+261,BKNG,Booking Holdings Inc.,636,"$1,281,718 ",1.98667E-06
